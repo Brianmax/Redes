@@ -1,0 +1,7 @@
+#Ejecutables
+a.out
+server
+client
+.gitignore.swp
+.vscode
+code.cpp
