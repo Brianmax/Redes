@@ -165,28 +165,44 @@ void write_thread(int socket_cliente) {
         cout << "Ingrese el nombre del archivo" << endl;
         string name; getline(cin, name);
         string toSend;
-        char tmp[3];
-        sprintf(tmp, "%03d", name.size()); 
+        char tmp[4];
+        sprintf(tmp, "%03d", name.size());
+        tmp[4] = '\0';
         toSend = "F" + string(tmp) + name;
         fstream FileToRead(name, ios::in);
         FileToRead.seekg (0, FileToRead.end);
         int length = FileToRead.tellg();
         FileToRead.seekg (0, FileToRead.beg);
-        char tmp2[9];
+        char tmp2[10];
         sprintf(tmp2, "%09d", length);
         toSend = toSend + string(tmp2);
-        char buffer[toSend.size()];
+        cout << "Buffer en string: " << toSend << endl;
+        cout << "Size buffer: " << toSend.size() << endl;
+        char buffer[toSend.size()+1];
         strcpy(buffer, toSend.c_str());
+        buffer[toSend.size()] = '\0';
         cout << buffer << endl;
-        n = write(socket_cliente, buffer, toSend.size());
+        int lenT = toSend.size();
+        cout << "Buffer size: " << lenT << endl;
+        n = write(socket_cliente, buffer, lenT);
+        cout << "This is the buffer: "<<buffer <<endl;
         int partes = length/1024;
-        char resto[1025];
+        cout << "Partes: " << partes << endl;
+        
         for (int i = 0; i < partes; i++)
         {
+          char resto[1025];
           FileToRead.read(resto, 1024);
           cout << resto << endl;
           n = write(socket_cliente, resto, 1024);
+          cout <<"Esta es la cantidad que se envia: "<< n <<endl;
         }
+        char resto2[length%1024 + 1];
+        FileToRead.read(resto2, length%1024);
+        cout << "Last part to sent gaaaaaaaaaaa" << resto2 << endl;
+        cout << "Resto: " << length%1024 << endl;
+        resto2[length%1024 + 1] = '\0';
+        n = write(socket_cliente, resto2, length%1024);
       }
       else{
         a="M";
