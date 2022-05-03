@@ -1,20 +1,18 @@
   /* Server code in C */
  
-  #include <sys/types.h>
-  #include <sys/socket.h>
-  #include <netinet/in.h>
-  #include <arpa/inet.h>
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <string.h>
-  #include <unistd.h>
- 
-
- #include <iostream>       // std::cout
- #include <thread> 
- #include <string>
- #include <map>
- #include <vector>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <iostream>       // std::cout
+#include <thread> 
+#include <string>
+#include <map>
+#include <vector>
 
 using namespace  std;
 
@@ -129,6 +127,17 @@ void read_thread(int socket_cliente) {
       }
       nombre.clear();
     }
+    else if (accion == 'F')
+    {
+        cout << "Sending File" << endl;
+        char text[1025];
+        n = read(socket_cliente, text, 100);
+        for (int i = 0; i < 5; i++)
+        {
+          n = read(socket_cliente, text, 1024);
+          cout << text << endl;
+        }
+    }
   }while(accion != 'Q');
 
   shutdown(socket_cliente, SHUT_RDWR);
@@ -202,7 +211,7 @@ void write_thread(int socket_cliente) {
     memset(&stSockAddr, 0, sizeof(struct sockaddr_in));
  
     stSockAddr.sin_family = AF_INET;
-    stSockAddr.sin_port = htons(45121);
+    stSockAddr.sin_port = htons(1100);
     stSockAddr.sin_addr.s_addr = INADDR_ANY;
  
     if(-1 == bind(SocketServer,(const struct sockaddr *)&stSockAddr, sizeof(struct sockaddr_in)))

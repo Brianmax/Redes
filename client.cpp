@@ -13,23 +13,24 @@
  #include <thread> 
  #include <string>
  #include <vector>
+ #include <bits/stdc++.h>
     
 using namespace  std;
-bool coma(string msg)
+bool coma(string msg, string sign)
 {
   int len = msg.size();
   for (int i = 0; i < len; i++)
   {
-    if(msg[i] == ',')
+    string tmp; tmp = msg[i];
+    if(tmp == sign)
       return true;
   }
   return false;
 }
-
-vector<string> getUserMsg(string msg)
+vector<string> getUserMsg(string msg, string sign)
 {
   string nick, mensaje;
-  int pos = msg.find(',');
+  int pos = msg.find(sign);
   for (int i = pos + 1; i < msg.size(); i++)
   {
     mensaje = mensaje + msg[i];
@@ -42,6 +43,22 @@ vector<string> getUserMsg(string msg)
   g.push_back(mensaje);
   g.push_back(nick);
   return g;
+}
+void Archivo(string msg)
+{
+  vector <string> info;
+  info = getUserMsg(msg, ":");
+  cout << info[0]<< "     " << info[1] << endl;
+  string nameFile;
+  nameFile = msg.substr(msg.find(" ") + 1, msg.size() - msg.find(" ") + 1);
+  //cout << "The namefile is here " << nameFile << endl;
+  
+}
+bool checkFile(string txt1, string txt2)
+{
+    if(strstr(txt1.c_str(),txt2.c_str()))
+        return true;
+    return false;
 }
 void read_thread(int socket_cliente) {
   char buffer[1000];
@@ -98,7 +115,8 @@ void write_thread(int socket_cliente) {
       n = write(socket_cliente,buffer,tmp.size());
     }
     
-    cin >> txt;
+    //cin >> txt;
+    getline(cin, txt);
     if (txt.compare("Q") == 0 ){
       buffer[0]='Q';
       buffer[1]='0';
@@ -108,13 +126,12 @@ void write_thread(int socket_cliente) {
       accion = 'Q';
     }
     else{ // msg
-      //msg: pepe, hola como estas
       string a;
-      if(coma(txt))
+      if(coma(txt, ","))
       {
         string user, msg;
         string tmp;
-        vector<string> userMsg = getUserMsg(txt);
+        vector<string> userMsg = getUserMsg(txt, ",");
         a = "D";
         sprintf(buffer, "%03d", userMsg[0].size());
         buffer[4] = '\0';
@@ -134,16 +151,42 @@ void write_thread(int socket_cliente) {
         cout << "Entramos en list" <<endl;
         string a = "D";
         sprintf(buffer, "%03d", 4);
-        //D004
         buffer[4] = '\0';
         string t = buffer;
         char buffer2[3]; sprintf(buffer2, "%02d", name.size());
-        //05
         string nameSize = buffer2;
         string m =  a + t + "list" + nameSize + name;
         strcpy(buffer, m.c_str());
         cout << buffer << endl;
         n = write(socket_cliente, buffer, m.size());
+      }
+      else if(txt == "file")
+      {
+        cout << "Ingrese el nombre del archivo" << endl;
+        string name; getline(cin, name);
+        string toSend;
+        char tmp[3];
+        sprintf(tmp, "%03d", name.size()); 
+        toSend = "F" + string(tmp) + name;
+        fstream FileToRead(name, ios::in);
+        FileToRead.seekg (0, FileToRead.end);
+        int length = FileToRead.tellg();
+        FileToRead.seekg (0, FileToRead.beg);
+        char tmp2[9];
+        sprintf(tmp2, "%09d", length);
+        toSend = toSend + string(tmp2);
+        char buffer[toSend.size()];
+        strcpy(buffer, toSend.c_str());
+        cout << buffer << endl;
+        n = write(socket_cliente, buffer, toSend.size());
+        int partes = length/1024;
+        char resto[1025];
+        for (int i = 0; i < partes; i++)
+        {
+          FileToRead.read(resto, 1024);
+          cout << resto << endl;
+          n = write(socket_cliente, resto, 1024);
+        }
       }
       else{
         a="M";
@@ -181,10 +224,9 @@ void write_thread(int socket_cliente) {
     memset(&stSockAddr, 0, sizeof(struct sockaddr_in));
  
     stSockAddr.sin_family = AF_INET;
-    int puerto = 0;
-    stSockAddr.sin_port = htons(45121);
-    Res = inet_pton(AF_INET, "5.253.235.219", &stSockAddr.sin_addr);
-   if (0 > Res)
+    stSockAddr.sin_port = htons(1100);
+    Res = inet_pton(AF_INET, "127.0.0.1", &stSockAddr.sin_addr);
+    if (0 > Res)
     {
       perror("error: first parameter is not a valid address family");
       close(SocketFD);
