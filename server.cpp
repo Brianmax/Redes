@@ -130,16 +130,11 @@ void read_thread(int socket_cliente) {
     }
     else if (accion == 'F')
     {
-        cout << "Sending File" << endl;
         char text[tamano + 10];
         string tempo = text;
         text[tamano+9] = '\0';
         n = read(socket_cliente, text, 9 + tamano);
         tempo = text;
-        /*for (map<int,string>::iterator it=room.begin(); it!=room.end(); ++it){
-          n = write(it->first, text, tamano + 9 + 4);
-          cout << "Protocolo: 45454545" << buffer << endl;
-        }*/
         int tam = atoi(tempo.substr(tamano, 9).c_str());
         cout << "Tam file: " << tam << endl;
         cout << "Tamanio de llegada: " << n << endl;
@@ -152,7 +147,7 @@ void read_thread(int socket_cliente) {
           text2[1024] = '\0';
           cout << text2;
           outfile << text2;
-          cout << "Size n: " << n << endl;
+          //cout << "Size n: " << n << endl;
         }
         //Leer el resto del archivo
         char resto[tam%1024 + 1];

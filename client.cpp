@@ -199,10 +199,10 @@ void write_thread(int socket_cliente) {
         }
         char resto2[length%1024 + 1];
         FileToRead.read(resto2, length%1024);
-        cout << "Last part to sent gaaaaaaaaaaa" << resto2 << endl;
         cout << "Resto: " << length%1024 << endl;
         resto2[length%1024 + 1] = '\0';
         n = write(socket_cliente, resto2, length%1024);
+        cout << resto2 << endl;
       }
       else{
         a="M";
